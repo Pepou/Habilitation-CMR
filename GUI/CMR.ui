@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Habilitation_CMR</class>
+ <widget class="QMainWindow" name="Habilitation_CMR">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>814</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Date  </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Recherche Correspondant</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Type d'habilitation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDateEdit" name="dateEdit">
+        <property name="wrapping">
+         <bool>false</bool>
+        </property>
+        <property name="accelerated">
+         <bool>false</bool>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit_cmr"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBox">
+        <item>
+         <property name="text">
+          <string>Contrôle de maintien / extension de l'habilitation</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Habilitation avant prise de poste</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="tableWidget">
+      <column>
+       <property name="text">
+        <string>NOM</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>PRENOM</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>DATE_FORMATION_INITIALE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>EXCEL</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>F_CARTOGRAPHIE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>F_TEMPERATURE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>F_VITESSE/TEMPS/MASSE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>PIPETTE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>ACTE_TEMPS</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>ACTE_VITESSE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>ACTE_TEMPRATURE</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>ACTE_CARTO</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>INTRA_CARTO</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>INTRA_VITESSE_TEMPS</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>814</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuExporter">
+    <property name="title">
+     <string>Exporter</string>
+    </property>
+   </widget>
+   <addaction name="menuExporter"/>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
