@@ -4,7 +4,7 @@ from PyQt4 import QtGui
 import sys
 #from GUI.Exploitation_enregistreurs import Exploitation_enregistreurs
 #from GUI.connexion2 import Connexion
-from GUI.CMR import Habilitation_CMR
+from GUI.CMR import Gestion_CMR
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.engine import create_engine
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     
     app = QtGui.QApplication(sys.argv)
     
-    myapp = Habilitation_CMR(engine)
+    myapp = Gestion_CMR(engine)
     myapp.show()    
     
     sys.exit(app.exec_())

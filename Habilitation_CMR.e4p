@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric5 project file for project Habilitation_CMR -->
-<!-- Saved: 2018-06-11, 17:41:10 -->
+<!-- Saved: 2018-06-11, 19:44:03 -->
 <!-- Copyright (C) 2018 F.Cariou, francois.Cariou@efs.sante.Fr -->
 <Project version="5.1">
   <Language>fr_FR</Language>
   <Hash>b7e620c55e3f7ed664718abb8379fea5a1a33117</Hash>
   <ProgLanguage mixed="0">Python3</ProgLanguage>
-  <ProjectType>PyQt5</ProjectType>
+  <ProjectType>Qt4</ProjectType>
   <Description></Description>
   <Version>0.1</Version>
   <Author>F.Cariou</Author>
@@ -18,8 +18,15 @@
     <Source>GUI/Ui_connexion2.py</Source>
     <Source>GUI/__init__.py</Source>
     <Source>__init__.py</Source>
+    <Source>GUI/Ui_CMR.py</Source>
+    <Source>GUI/CMR.py</Source>
+    <Source>Package/AccesBdd.py</Source>
+    <Source>Package/Icones_rc.py</Source>
+    <Source>Package/__init__.py</Source>
   </Sources>
-  <Forms/>
+  <Forms>
+    <Form>GUI/CMR.ui</Form>
+  </Forms>
   <Translations/>
   <Resources/>
   <Interfaces/>
