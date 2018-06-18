@@ -4,7 +4,7 @@
 Module implementing Gestion_CMR.
 """
 
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import pyqtSlot, Qt
 from PyQt4.QtGui import QMainWindow, QTableWidgetItem
 
 from .Ui_CMR import Ui_Gestion_CMR
@@ -110,3 +110,84 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
         except ValueError:
             print("merci de saisir toutes les informations")
             pass
+    
+    @pyqtSlot(int, int)
+    def on_tableWidget_cmr_cellDoubleClicked(self, row, column):
+        """
+        Slot documentation goes here.
+        
+        """
+        
+            
+            
+        self.lineEdit_nom_modif.setText(self.tableWidget_cmr.item(row,0).text())
+        self.lineEdit_prenom_modif.setText(self.tableWidget_cmr.item(row,1).text())
+        self.lineEdit_responsable_2.setText(self.tableWidget_cmr.item(row,6).text())
+        self.lineEdit_courriel_2.setText(self.tableWidget_cmr.item(row,2).text())
+        self.lineEdit_fonction_2.setText(self.tableWidget_cmr.item(row,3).text())
+        
+        
+        self.comboBox_site_modif.clear()
+        sites = self.cmr_bdd.recup_site()
+        self.comboBox_site_modif.addItems([x[0] for x in next(sites)])
+        
+        index_site = self.comboBox_site_modif.findText(self.tableWidget_cmr.item(row,4).text(),Qt.MatchContains)
+        if index_site != -1:
+            self.comboBox_site_modif.setCurrentIndex(index_site)
+            
+        self.comboBox_service_modif.clear()
+        services = self.cmr_bdd.recupe_services_par_site(self.comboBox_site_modif.currentText())
+        self.comboBox_service_modif.addItems([x[0] for x in next(services)])
+        
+        index_service = self.comboBox_service_modif.findText(self.tableWidget_cmr.item(row,5).text(),Qt.MatchContains)
+        if index_site != -1:
+            self.comboBox_service_modif.setCurrentIndex(index_service)
+        
+        if self.tableWidget_cmr.item(row,7).text() == "Oui":
+            self.comboBox_en_activit.setCurrentIndex(0)
+        else:
+            self.comboBox_en_activit.setCurrentIndex(1)
+            
+        self.id = self.cmr_bdd.recup_id_cmr(self.tableWidget_cmr.item(row,0).text(), 
+                                        self.tableWidget_cmr.item(row,1).text())
+#        print(f"self id {self.id}")
+        #on sauve dans un generator
+        
+#        print(f"row {row} column : {column}")
+    
+    @pyqtSlot(str)
+    def on_comboBox_site_modif_currentIndexChanged(self, p0):
+        """
+        Slot documentation goes here.
+        """
+        self.comboBox_service_modif.clear()
+#        site = 
+        services = self.cmr_bdd.recupe_services_par_site(p0)
+        self.comboBox_service_modif.addItems([x[0] for x in next(services)])
+    
+    @pyqtSlot()
+    def on_pushButton_modifier_clicked(self):
+        """
+        Slot documentation goes here.
+        """
+        print("couuc")
+        
+        if self.comboBox_en_activit.currentText()== "Oui":
+            activite = True
+        else:
+            activite = False
+        cmr_modif= {"id":next(self.id), "nom": self.lineEdit_nom_modif.text(), 
+                    "prenom":self.lineEdit_prenom_modif.text(), "responsable": self.lineEdit_responsable_2.text(), 
+                    "courriel": self.lineEdit_courriel_2.text(), "fonction":self.lineEdit_fonction_2.text(), 
+                    "site":self.comboBox_site_modif.currentText(), "service":self.comboBox_service_modif.currentText(), 
+                    "activite":activite}
+        print(f"dans le bouton {cmr_modif}")
+        self.cmr_bdd.modif_cmr(cmr_modif)
+    
+    @pyqtSlot()
+    def on_pushButton_annul_modif_clicked(self):
+        """
+        Slot documentation goes here.
+        """
+        # TODO: not implemented yet
+        raise NotImplementedError

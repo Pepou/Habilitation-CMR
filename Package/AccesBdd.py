@@ -59,7 +59,7 @@ class Bdd_Cmr():
                     .all()
         session.close()
 #        print("coucou t dans la place")
-        print(cmr)
+#        print(cmr)
         yield cmr
     
     
@@ -74,7 +74,7 @@ class Bdd_Cmr():
                             
         session.close()
         #self.SERVICE.ABREVIATION) \.join(self.SERVICE, self.SITE.ID_CLIENTS == self.SERVICE.ID_CLIENT )\ 
-        print(clients)
+#        print(clients)
 #                                       .order_by(self.ADMIN_CARTO.ID_CARTO.desc())\
 #                                       .limit(100)
         yield clients
@@ -88,7 +88,7 @@ class Bdd_Cmr():
                                 .all()
                                 
         session.close()
-        print(services)
+#        print(services)
         
         yield services
         
@@ -112,11 +112,38 @@ class Bdd_Cmr():
         session.commit()
         session.close()
         
+    def recup_id_cmr(self, nom, prenom):
         
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        id = session.query(self.CMR.ID_CMR) \
+                    .filter(and_(func.lower(self.CMR.NOM)==(func.lower(nom)), 
+                                func.lower(self.CMR.PRENOM) == (func.lower(prenom))))\
+                    .first()
+        session.close()
+#        print("coucou t dans la place")
+#        print(id)
+        yield id[0]
         
+    def modif_cmr(self, saisie_cmr):
+        print(saisie_cmr)
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        cmr_modif = session.query(self.CMR).get(saisie_cmr["id"])
         
-    def recup_prestation(self):
-        
+        cmr_modif.NOM =saisie_cmr["nom"]
+        cmr_modif.PRENOM = saisie_cmr["prenom"]
+        cmr_modif.SERVICE= saisie_cmr["service"]
+        cmr_modif.FONCTION = saisie_cmr["fonction"]
+        cmr_modif.SITE = saisie_cmr["site"]
+        cmr_modif.COURRIEL = saisie_cmr["courriel"]
+        cmr_modif.RESPONSABLE = saisie_cmr["responsable"]
+        cmr_modif.ARCHIVAGE = saisie_cmr["activite"]
+        session.flush()
+        session.commit()
+        session.close()
+    
+    def recup_prestation(self):      
         
         
         word = win32.gencache.EnsureDispatch('Word.Application')
