@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Main_Formation</class>
+ <widget class="QMainWindow" name="Main_Formation">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1488</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Racapitulatif formations</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>39</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel{
+background-color: rgb(170, 255, 255);
+border: 1px solid Black;
+border-radius: 5px;}</string>
+        </property>
+        <property name="text">
+         <string>Recapitulatif des Formations</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="tableWidget_recap">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="cursor" stdset="0">
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::ActionsContextMenu</enum>
+        </property>
+        <property name="whatsThis">
+         <string extracomment="freeghrehtzh"/>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="showGrid">
+         <bool>true</bool>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::SolidLine</enum>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="cornerButtonEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="rowCount">
+         <number>0</number>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>120</number>
+        </attribute>
+        <attribute name="horizontalHeaderHighlightSections">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>32</number>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>Nom Formation</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Date</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Type de formation</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Domaine</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Plan</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Liste des Participants</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1488</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuNouvelle_Cartographie">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionNouvelle_Formation"/>
+    <addaction name="actionModifier_Formation"/>
+   </widget>
+   <widget class="QMenu" name="menuDocuments">
+    <property name="title">
+     <string>Documents</string>
+    </property>
+    <addaction name="actionAttestation_de_presence"/>
+    <addaction name="actionHabilitations"/>
+   </widget>
+   <addaction name="menuNouvelle_Cartographie"/>
+   <addaction name="menuDocuments"/>
+  </widget>
+  <action name="actionNouvelle_Formation">
+   <property name="text">
+    <string>Nouvelle Formation</string>
+   </property>
+  </action>
+  <action name="actionModifier_Formation">
+   <property name="text">
+    <string>Modifier</string>
+   </property>
+  </action>
+  <action name="actionAttestation_de_presence">
+   <property name="text">
+    <string>Attestation de presence</string>
+   </property>
+  </action>
+  <action name="actionHabilitations">
+   <property name="text">
+    <string>Habilitations</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

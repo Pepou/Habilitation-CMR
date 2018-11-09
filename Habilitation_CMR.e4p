@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric5 project file for project Habilitation_CMR -->
-<!-- Saved: 2018-06-11, 19:44:03 -->
+<!-- Saved: 2018-07-26, 17:27:27 -->
 <!-- Copyright (C) 2018 F.Cariou, francois.Cariou@efs.sante.Fr -->
 <Project version="5.1">
   <Language>fr_FR</Language>
@@ -12,6 +12,7 @@
   <Version>0.1</Version>
   <Author>F.Cariou</Author>
   <Email>francois.Cariou@efs.sante.Fr</Email>
+  <Eol index="-1"/>
   <Sources>
     <Source>Habilitation_CMR 0.1.py</Source>
     <Source>GUI/connexion2.py</Source>
@@ -23,9 +24,17 @@
     <Source>Package/AccesBdd.py</Source>
     <Source>Package/Icones_rc.py</Source>
     <Source>Package/__init__.py</Source>
+    <Source>GUI/Ui_Formation.py</Source>
+    <Source>GUI/Formation.py</Source>
+    <Source>GUI/Ui_test.py</Source>
+    <Source>GUI/Ui_Main_Formation.py</Source>
+    <Source>GUI/Main_Formation.py</Source>
+    <Source>Package/Documents_de_Formation.py</Source>
   </Sources>
   <Forms>
     <Form>GUI/CMR.ui</Form>
+    <Form>GUI/Formation.ui</Form>
+    <Form>GUI/Main_Formation.ui</Form>
   </Forms>
   <Translations/>
   <Resources/>

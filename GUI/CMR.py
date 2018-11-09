@@ -5,10 +5,14 @@ Module implementing Gestion_CMR.
 """
 
 from PyQt4.QtCore import pyqtSlot, Qt
-from PyQt4.QtGui import QMainWindow, QTableWidgetItem
+from PyQt4.QtGui import QMainWindow, QTableWidgetItem, QAction
 
 from .Ui_CMR import Ui_Gestion_CMR
 from Package.AccesBdd import Bdd_Cmr
+
+from GUI.Main_Formation import Main_Formation
+
+
 
 class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
     """
@@ -23,9 +27,11 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
         super().__init__(parent)
         self.setupUi(self)
         
-        self.cmr_bdd = Bdd_Cmr(engine)
+        self.engine = engine
+        self.cmr_bdd = Bdd_Cmr(self.engine)
 #        self.cmr_bdd.recup_cmr()
         self.remplir_tableau_cmr(self.cmr_bdd.recup_cmr())
+        
         
 
 #            print(cmr.NOM)
@@ -107,19 +113,32 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
                         "fonction":self.lineEdit_fonction.text()}
         
             self.cmr_bdd.insertion_new_cmr(new_cmr)
+        
+            self.nettoyage_onglet_creation_cmr()
+            self.tableWidget.setCurrentIndex(0)
+            self.remplir_tableau_cmr(self.cmr_bdd.recup_cmr())
+        
         except ValueError:
             print("merci de saisir toutes les informations")
             pass
+            
+    def nettoyage_onglet_creation_cmr(self):
+        """permet de remettre à zero longlet de creation et de revenir sur l'onglet de base"""
+        
+        self.comboBox_site.setCurrentIndex(0)
+        self.lineEdit_responsable.clear()
+        self.lineEdit_nom.clear()
+        self.lineEdit_prenom.clear()
+        self.lineEdit_courriel.clear()
+        self.lineEdit_fonction.clear()
     
     @pyqtSlot(int, int)
     def on_tableWidget_cmr_cellDoubleClicked(self, row, column):
         """
-        Slot documentation goes here.
-        
+        telehcarge les donnees du tableau pour les mettre dans l'onglet modif
         """
+        self.tabWidget.setCurrentIndex(2)
         
-            
-            
         self.lineEdit_nom_modif.setText(self.tableWidget_cmr.item(row,0).text())
         self.lineEdit_prenom_modif.setText(self.tableWidget_cmr.item(row,1).text())
         self.lineEdit_responsable_2.setText(self.tableWidget_cmr.item(row,6).text())
@@ -147,13 +166,11 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
             self.comboBox_en_activit.setCurrentIndex(0)
         else:
             self.comboBox_en_activit.setCurrentIndex(1)
-            
-        self.id = self.cmr_bdd.recup_id_cmr(self.tableWidget_cmr.item(row,0).text(), 
-                                        self.tableWidget_cmr.item(row,1).text())
-#        print(f"self id {self.id}")
-        #on sauve dans un generator
         
-#        print(f"row {row} column : {column}")
+        #self.id est un generator
+        self.id = self.cmr_bdd.recup_id_cmr(self.tableWidget_cmr.item(row,0).text(), 
+                                        self.tableWidget_cmr.item(row,1).text())   
+
     
     @pyqtSlot(str)
     def on_comboBox_site_modif_currentIndexChanged(self, p0):
@@ -170,24 +187,74 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
         """
         Slot documentation goes here.
         """
-        print("couuc")
+#        print("couuc")
         
         if self.comboBox_en_activit.currentText()== "Oui":
-            activite = True
+            activite = False #dans la base on parle d'archivage
         else:
-            activite = False
+            activite = True
         cmr_modif= {"id":next(self.id), "nom": self.lineEdit_nom_modif.text(), 
                     "prenom":self.lineEdit_prenom_modif.text(), "responsable": self.lineEdit_responsable_2.text(), 
                     "courriel": self.lineEdit_courriel_2.text(), "fonction":self.lineEdit_fonction_2.text(), 
                     "site":self.comboBox_site_modif.currentText(), "service":self.comboBox_service_modif.currentText(), 
                     "activite":activite}
-        print(f"dans le bouton {cmr_modif}")
         self.cmr_bdd.modif_cmr(cmr_modif)
+#        print(f"dans le bouton {cmr_modif}")
+        self.nettoyage_onglet_modif()
+        
+        self.tabWidget.setCurrentIndex(0)
+        self.remplir_tableau_cmr(self.cmr_bdd.recup_cmr())
     
     @pyqtSlot()
     def on_pushButton_annul_modif_clicked(self):
         """
         Slot documentation goes here.
         """
-        # TODO: not implemented yet
-        raise NotImplementedError
+        self.nettoyage_onglet_modif()
+        self.tabWidget.setCurrentIndex(0)
+    
+    def nettoyage_onglet_modif(self):
+        """permet de netooyer l'ongelt modif et revenir à l'ingelt de base"""
+        
+        self.lineEdit_nom_modif.clear()
+        self.lineEdit_prenom_modif.clear()
+        self.lineEdit_responsable_2.clear()
+        self.lineEdit_courriel_2.clear()
+        self.lineEdit_fonction_2.clear()
+        self.comboBox_site_modif.clear()
+        self.comboBox_service_modif.clear()
+        self.comboBox_en_activit.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(0)
+    
+    @pyqtSlot()
+    def on_pushButton_annule_creation_clicked(self):
+        """
+        Slot documentation goes here.
+        """
+        self.nettoyage_onglet_creation_cmr()
+        self.tabWidget.setCurrentIndex(0)
+    
+#    @pyqtSlot()
+#    def on_actionNouvelle_Formation_triggered(self):
+#        """
+#        Slot documentation goes here.
+#        """
+##        app = QApplication(sys.argv)
+##        self.close()
+##        global formation
+#        self.formation = Main_Formation(self.engine)
+#        self.formation.show()
+#        
+#        
+##        saisie_formation.show()
+    
+
+    @pyqtSlot()
+    def on_actionModule_Formation_triggered(self):
+        """
+        Slot documentation goes here.
+        """
+#        print("coucou")
+        self.formation = Main_Formation(self.engine)
+        self.formation.show()
+#        self.hide()

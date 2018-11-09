@@ -8,21 +8,31 @@ from sqlalchemy.ext.automap import automap_base
 import pendulum
 from path import Path
 from PyQt4.QtGui import QFileDialog
-import shutil
+#import shutil
 import win32com.client as win32
-import time
-class Bdd_Cmr():
+#import time
+#import json
+from sqlalchemy.dialects.postgresql import JSON, ARRAY
+
+class Bdd_Cmr():    
+    
     """classe pour gerer le rapatriement des donnees CMR:
     nbr d'acte ..."""
 
 
     def __init__(self, engine):
 #        print("couocu")
-        Base = automap_base()
+        metadata = MetaData() 
+        metadata.reflect(engine, only=['CORRESPONDANTS', 'AFFICHEUR_CONTROLE_ADMINISTRATIF', 
+                                        'CARTO_ADMINISTRATION', 'CLIENTS', 
+                                        'SERVICES_CLIENT', 'ENTITE_CLIENT', 
+                                        'GESTION_FORMATION'])
+        
+        Base = automap_base(metadata=metadata)
         self.engine = engine 
         
         # reflect the tables
-        Base.prepare(engine, reflect=True)
+        Base.prepare()
         
         
         self.CMR = Base.classes.CORRESPONDANTS
@@ -31,6 +41,7 @@ class Bdd_Cmr():
         self.SITE = Base.classes.CLIENTS
         self.SERVICE = Base.classes.SERVICES_CLIENT
         self.ENT_CLIENT = Base.classes.ENTITE_CLIENT
+        self.FORMATION = Base.classes.GESTION_FORMATION
 
 #        print([c.key for c in self.CMR.__table__.c])
     
@@ -46,6 +57,33 @@ class Bdd_Cmr():
 #        print(cmr)
         yield cmr
         
+#    def recup_id_cmr(self, nom, prenom):
+##        print("recocuou")
+#        Session = sessionmaker(bind= self.engine)
+#        session = Session()
+#        cmr = session.query(self.CMR.ID_CMR)\
+#                                    .filter(and_(func.lower(self.CMR.NOM) == (func.lower(nom)), 
+#                                                func.lower(self.CMR.PRENOM) == (func.lower(prenom))))\
+#                                    .order_by(self.CMR.NOM)\
+#                                    .first()
+#                                    
+#        session.close()
+##        print(cmr)
+#        yield cmr   
+    
+    
+    def recup_cmr_en_activite(self):
+#        print("recocuou")
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        cmr = session.query(self.CMR)\
+                                    .filter(self.CMR.ARCHIVAGE != True)\
+                                    .order_by(self.CMR.NOM)\
+                                    .all()
+                                    
+        session.close()
+#        print(cmr)
+        yield cmr
         
     def recherche(self, saisie):
 #        print("coucou t dans la place")
@@ -123,10 +161,10 @@ class Bdd_Cmr():
         session.close()
 #        print("coucou t dans la place")
 #        print(id)
-        yield id[0]
+        return id[0]
         
     def modif_cmr(self, saisie_cmr):
-        print(saisie_cmr)
+#        print(saisie_cmr)
         Session = sessionmaker(bind= self.engine)
         session = Session()
         cmr_modif = session.query(self.CMR).get(saisie_cmr["id"])
@@ -142,6 +180,87 @@ class Bdd_Cmr():
         session.flush()
         session.commit()
         session.close()
+    
+    
+    def insertion_formation(self, donnees):
+        
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        try:
+            new_formation = self.FORMATION(NOM_FORMATION = donnees["nom_formation"] , 
+                                DATE_FORMATION = donnees["date"], 
+                                TYPE_FORMATION = donnees["type_formation"], 
+                                DOMAINE= donnees["domaine"], 
+                                PLAN= donnees["plan"], 
+                                LIST_PARTICIPANTS = cast(donnees["participants"], ARRAY(JSON)) 
+                                )
+                    
+            
+            session.add(new_formation)
+            session.commit()
+        
+        except Exception as e:
+                print(e)
+                session.rollback()
+#                
+        finally:
+                session.close()
+        
+        
+        
+        
+    
+    def modif_formation(self, id_formation_a_modif, donnees):
+        """fct pour modif une formation"""
+        
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        
+#        try:
+        formation_a_modif = session.query(self.FORMATION).get(id_formation_a_modif)
+        
+        formation_a_modif.NOM_FORMATION = donnees["nom_formation"]
+        formation_a_modif.DATE_FORMATION = donnees["date"]
+        formation_a_modif.TYPE_FORMATION = donnees["type_formation"]
+        formation_a_modif.DOMAINE = donnees["domaine"]
+        formation_a_modif.PLAN = donnees["plan"]
+        formation_a_modif.LIST_PARTICIPANTS = cast(donnees["participants"], ARRAY(JSON))
+        session.flush()
+        session.commit()
+            
+#        except Exception as e:
+#                print(e)
+#                session.rollback()
+##                
+#        finally:
+#                session.close()
+            
+    
+    def recup_formation(self):
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        formations = session.query(self.FORMATION) \
+                    .order_by(self.FORMATION.ID)\
+                    .all()
+        
+        
+        
+        yield formations
+        session.close()
+        
+    def recup_formation_particuliere(self, nom, date, domaine, type_formation):
+        """fct qui va chercher dans la base une formation en fct du nom date et domaine"""
+        
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        formation = session.query(self.FORMATION) \
+                    .filter(and_(self.FORMATION.NOM_FORMATION == nom, self.FORMATION.DATE_FORMATION == date, 
+                                    self.FORMATION.DOMAINE == domaine, self.FORMATION.TYPE_FORMATION == type_formation))\
+                    .first()
+        
+        return formation
+        session.close()
+#        print(formation.NOM_FORMATION)
     
     def recup_prestation(self):      
         
@@ -388,5 +507,258 @@ class Bdd_Cmr():
 #                                .all()
         
 
+class Insertion_Domaine():
+    
+    def __init__(self, engine):
+#        print("couocu")
 
+        metadata = MetaData() 
+        metadata.reflect(engine, only=['DOMAINE_MESURE'])
+        Base = automap_base(metadata=metadata)
+#        Base = automap_base()
+        self.engine = engine 
+        
+        # reflect the tables
+        Base.prepare(engine, reflect=True)        
+        
+        self.DOMAINE = Base.classes.DOMAINE_MESURE
+        
+        
+    def insertion_table(self):
+        
+
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        
+        
+        accelerometrie = {"domaine":"ACCÉLÉROMÈTRIE", 
+                            "famille":[{"FAMILLE":"ANÉMOMÈTRE", 
+                                        "DESIGNATION":[{"NOM":"chaine de mesure de la vitesse de l'air".upper(),
+                                                        "TYPE":["/","hélice".upper(),"fil chaud".upper(),"hermétique".upper()]}]},
+                                        
+                                        
+                                        ]}
+                                        
+        humidite= {"domaine":"HYGROMÈTRIE", 
+                            "famille":[{"FAMILLE":"HYGROMÈTRE", 
+                                        "DESIGNATION":[{"NOM":"chaine de mesure d'humidité".upper(),
+                                                        "TYPE":["/","resistif".upper(), "capacitif".upper(), "cheveux".upper()]}, 
+                                                        {"NOM":"SONDE D'HYGROMÉTRIE".upper(),
+                                                        "TYPE":["/","resistif".upper(), "capacitif".upper(), "cheveux".upper()]}                                                   
+                                                                                                               
+                                                        
+                                                        ]}]}
+                                                        
+                                                        
+                                                        
+                        
+                                                        
+        masse= {"domaine":"MASSE", 
+                            "famille":[{"FAMILLE":"BALANCE / SYST PESEE", 
+                                        "DESIGNATION":[{"NOM":"balance".upper(),
+                                                        "TYPE":["/","Compensation électromagnétique des forces".upper(), "Jauge de contrainte".upper()]}]}, 
+                                        
+                                        {"FAMILLE":"POIDS ETALON", 
+                                        "DESIGNATION":[{"NOM":"POIDS".upper(),
+                                                        "TYPE":["/","OIML R 111".upper()]}]}, 
+                                                        
+                                        {"FAMILLE":"POIDS DE TRAVAIL", 
+                                        "DESIGNATION":[{"NOM":"POIDS".upper(),
+                                                        "TYPE":["/","OIML R 111".upper()]}]}, 
+                                                        
+                                        {"FAMILLE":"MASSE ETALON", 
+                                        "DESIGNATION":[{"NOM":"masse etalon".upper(),
+                                                        "TYPE":["/","OIML R 111".upper()]}]}, 
+                                                        
+                                        {"FAMILLE":"MASSE DE TRAVAIL", 
+                                        "DESIGNATION":[{"NOM":"masse de travail".upper(),
+                                                        "TYPE":["/","OIML R 111".upper()]}]}                                
+                                                        
+                                                        
+                                                        
+                                    ]}                                
+        
+        
+        
+        pression= {"domaine":"PRESSION", 
+                            "famille":[{"FAMILLE":"MESURE DE PRESSION", 
+                                        "DESIGNATION":[{"NOM":"BAROMÈTRE".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}, 
+                                                        
+                                                        {"NOM":"manometre".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}], } 
+                                                        
+                                                                     
+                                                        
+                                    ]}
+        
+        temps_frequence= {"domaine":"TEMPS-FRÉQUENCE", 
+                            "famille":[{"FAMILLE":"MESURE DE TEMPS", 
+                                        "DESIGNATION":[ {"NOM":"CHRONOMÈTRE/MINUTERIE DE TRAVAIL".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]},                                                         
+                                                        
+                                                        {"NOM":"AFFICHEUR DE TEMPS".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}                                                         
+                                                        
+                                                        ]}, 
+                                                        
+                                        {"FAMILLE":"MESURE DE FREQUENCE", 
+                                        "DESIGNATION":[{"NOM":"TACHYMETRES".upper(),
+                                                        "TYPE":["/","OPTIQUE".upper(),"mécanique".upper(), "courants de Foucault".upper()]}, 
+
+                                                        {"NOM":"AFFICHEUR DE TEMPS".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}, 
+                                                        
+                                                        {"NOM":"AFFICHEUR DE VITESSE".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}, 
+                                                        
+                                                        {"NOM":"CENTRI GRDE CAPACITE".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]},
+                                                        
+                                                        {"NOM":"CENTRI MOY CAPACITE".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}, 
+                                                        
+                                                        {"NOM":"ULTRA-CENTRIFUGEUSE".upper(),
+                                                        "TYPE":["/","numerique".upper(),"analogique".upper()]}
+                                                        
+                                                        ]}
+             
+                                    ]}
+        
+        temperature = {"domaine":"TEMPÉRATURE", 
+                            "famille":[{"FAMILLE":"MESURE POLYVAL (T°C)", 
+                                        "DESIGNATION":[{"NOM":"AFFICHEUR DE TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "numerique".upper()]}, 
+                                                        
+                                                        {"NOM":"SONDE ALARME TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "numerique".upper()]}, 
+                                                        
+                                                        {"NOM":"SONDE ALARME TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "numerique".upper()]}, 
+                                                        
+                                                        {"NOM":"TÉMOIN D'ENVIRONNEMENT".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "numerique".upper()]}, 
+
+                                                        {"NOM":"CENTRALE DE TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "Thermocouple".upper()]}, 
+                                                        
+                                                        {"NOM":"CHAÎNE DE MESURE DE TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper()]}, 
+                                                        
+                                                        {"NOM":"SONDE DE TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "Thermocouple".upper()]}, 
+                                                        
+
+                                                        {"NOM":"ENREGISTREUR DE TEMPÉRATURE".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "Thermocouple".upper()]}, 
+                                                        
+                                                        {"NOM":"ETALON".upper(),
+                                                        "TYPE":["/","Thermistance".upper(),"PT100".upper(), "PT1000".upper(), "Thermocouple".upper()]}
+                                                        ]}, 
+                                                        
+                                        
+                                        {"FAMILLE":"Générateur".upper(), 
+                                        "DESIGNATION":[{"NOM":"BAIN D'ETALONNAGE".upper(),
+                                                        "TYPE":["/","à remous".upper(),"à débordement".upper()]}, 
+                                                        
+                                                        {"NOM":"BAIN DE GLACE FONDANTE".upper(),
+                                                        "TYPE":["/","numerique".upper()]},
+                                                        
+                                                        {"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/","TEMPÉRATURE".upper(),"TEMPÉRATURE-humidité".upper(), "humidité".upper()]},
+                                                        
+                                                        {"NOM":"FOUR".upper(),
+                                                        "TYPE":["/", "PELTIER"]}
+                                                        
+                                                        ]}, 
+                                         
+                                        {"FAMILLE":"AUTOCLAVE".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]},
+                                                       
+                                        {"FAMILLE":"BAINS-MARIE".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"CHAMBRE FROIDE".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"CONSERVAT. PLAQUETTE".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"DECONGELATEURS".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"ENCEINTE T°C NEGATIV".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"ENCEINTE T°C POSITIV".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"ETUVES - INCUBATEURS".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"FOUR".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                        
+                                        {"FAMILLE":"MATERIEL CRYOGENIQUE".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]},
+
+                                        {"FAMILLE":"REFRIGERAT. DOMESTIQ".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}, 
+                                                        
+                                        {"FAMILLE":"TABLE REFRIGEREE".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]},
+                                                       
+                                        {"FAMILLE":"THERMOCYCLEUR".upper(), 
+                                        "DESIGNATION":[{"NOM":"ENCEINTE CLIMATIQUE".upper(),
+                                                        "TYPE":["/"]} ]}
+                                        
+                                    ]}
+        
+        
+        
+        for ele in [accelerometrie, humidite, masse, pression, temps_frequence, temperature]:
+        
+            new_domaine = self.DOMAINE(DOMAINE = ele["domaine"] , 
+                                OPTIONS=cast(accelerometrie["famille"], ARRAY(JSON)) 
+                                )
+            
+            
+            session.add(new_domaine)
+            session.commit()
+        session.close()
+        
+        
+    def recuperation_domaine(self):
+        
+        Session = sessionmaker(bind= self.engine)
+        session = Session()
+        
+        
+        
+        domaine = session.query(self.DOMAINE.DOMAINE)\
+                                    .order_by(self.DOMAINE.DOMAINE)\
+                                    .all()
+                                    
+        session.close()
+        return [x[0]for x in domaine]
+        
+        
+        
+        
+        
+        
+        
+        
 
