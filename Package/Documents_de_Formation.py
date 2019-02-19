@@ -32,16 +32,19 @@ class Attestation_formation():
         if chemin_sauvegarde !="":            
             
             try:
-        
+    
                 chemin_fichier = Path('AppData/Documents/Attestation de formation.docx').abspath()
                 
+#                print(self.donnees["tableau_resultats"])
                 for ele in self.donnees["tableau_resultats"]:
                     doc = self.word.Documents.Open(chemin_fichier)
                 
                     doc.Bookmarks("Nom_Prenom").Range.Text = ele["nom"].upper() +" " + ele["prenom"].capitalize()
                     
                     doc.Bookmarks("Programme").Range.Text = self.donnees["plan"]
-                    doc.Bookmarks("Domaines").Range.Text = self.donnees["domaine"]
+#                    print(self.donnees["domaine"])
+#                    print(type(self.donnees["domaine"]))
+                    doc.Bookmarks("Domaines").Range.Text = "\n".join(self.donnees["domaine"])
                     
                     doc.Bookmarks("Date_Formation").Range.Text = "Le" + " " +self.donnees["date"]
                     

@@ -4,6 +4,8 @@ from sqlalchemy.orm import *
 #import pandas as pd
 
 from sqlalchemy.ext.automap import automap_base
+#from sqlalchemy.dialects.postgres import JSON
+from sqlalchemy.sql.expression import cast
 #from PyQt4.QtGui import QMessageBox
 import pendulum
 from path import Path
@@ -11,7 +13,7 @@ from PyQt4.QtGui import QFileDialog
 #import shutil
 import win32com.client as win32
 #import time
-#import json
+import json
 from sqlalchemy.dialects.postgresql import JSON, ARRAY
 
 class Bdd_Cmr():    
@@ -133,6 +135,7 @@ class Bdd_Cmr():
         
     def insertion_new_cmr(self, cmr):
         
+#        print(cmr)
         Session = sessionmaker(bind= self.engine)
         session = Session()
         
@@ -275,6 +278,10 @@ class Bdd_Cmr():
         Session = sessionmaker(bind= self.engine)
         session = Session()
         
+#        dt_formation = pendulum.now('Europe/Paris').subtract(years=1)
+#        date_now = pendulum.now('Europe/Paris')
+#        print(dt_formation)
+#        print(dt_formation.year)
         
         dt_carto = pendulum.now('Europe/Paris').subtract(years=3)
         dt_sat_aft_tev = pendulum.now('Europe/Paris').subtract(years=1)
@@ -301,11 +308,89 @@ class Bdd_Cmr():
         if chemin_sauvegarde !="":            
         
 #            nom = file +"/"+ sauvegarde["administratif"]["num_rapport"]
-            
+            formation =session.query( self.FORMATION.ID, 
+                                        self.FORMATION.LIST_PARTICIPANTS, 
+                                        self.FORMATION.DOMAINE, 
+                                        self.FORMATION.DATE_FORMATION, 
+                                        self.FORMATION.TYPE_FORMATION)\
+                                        .filter(and_(self.FORMATION.DATE_FORMATION >= (pendulum.datetime(pendulum.now('Europe/Paris').subtract(years=1).year, 1, 1)
+), 
+                                                      self.FORMATION.DATE_FORMATION <= pendulum.now('Europe/Paris') )).all()
+
             
             for nom_prenom in nom_prenom_cmr:
+#                print(nom_prenom)
     #            presta_par_cmr = []
+                
                 doc = word.Documents.Open(chemin_fichier)
+    
+                for ele in formation:
+#                    print(ele[1])
+                    for participant in ele[1]:                        
+                        participan_dict = json.loads(participant)
+                        
+                        if participan_dict['nom'] == nom_prenom[0] and participan_dict['prenom'] == nom_prenom[1]:
+                           
+                           
+                           ####rajouter ici test sur initiale ou continue:
+                            type_formation = ele[4]
+                            if type_formation == "Continue":                           
+                                if (participan_dict['resultat'] == "Acquises" 
+                                            or participan_dict['resultat'] == "Acquise"
+                                            or participan_dict['resultat'] == "À améliorer") :
+                                    
+                                
+                                    for domaine in ele[2]:
+                                        if domaine == "TEMPÉRATURE":                                
+                                            if participan_dict['resultat'] == "Acquises" or participan_dict['resultat'] == "Acquise":
+                                                doc.Bookmarks("FORM_CARTO_A").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                                doc.Bookmarks("FORM_TEMP_A").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                            else:
+                                                doc.Bookmarks("FORM_CARTO_AA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                                doc.Bookmarks("FORM_TEMP_AA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                                
+                                        elif domaine == "MASSE" or domaine == "ACCÉLÉROMÈTRIE" or domaine == "TEMPS":
+                                            if participan_dict['resultat'] == "Acquises" or participan_dict['resultat'] == "Acquise":
+                                                doc.Bookmarks("FORM_VIT_TPS_MASSE_A").Range.Text = ele[3].strftime("%d-%m-%Y")                                        
+                                            else:
+                                                doc.Bookmarks("FORM_VIT_TPS_MASSE_AA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                                                                
+                                        elif domaine == "PIPETTES":
+                                            if participan_dict['resultat'] == "Acquises" or participan_dict['resultat'] == "Acquise":
+                                                doc.Bookmarks("FORM_PIPETTE_A").Range.Text = ele[3].strftime("%d-%m-%Y")                                        
+                                            else:
+                                                doc.Bookmarks("FORM_PIPETTE_AA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                                
+        #                                doc.Bookmarks("NOM").Range.Text
+                                
+    
+                                elif (participan_dict['nom'] == nom_prenom[0] 
+                                        and participan_dict['prenom'] == nom_prenom[1]
+                                        and (participan_dict['resultat'] == "Non acquise")):
+                                    for domaine in ele[2]:
+                                        if domaine == "TEMPÉRATURE": 
+                                            doc.Bookmarks("FORM_CARTO_NA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                            doc.Bookmarks("FORM_TEMP_NA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                        
+                                        elif domaine == "MASSE" or domaine == "ACCÉLÉROMÈTRIE" or domaine == "TEMPS":                                    
+                                            doc.Bookmarks("FORM_VIT_TPS_MASSE_NA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                        
+                                        elif domaine == "PIPETTES":
+                                            doc.Bookmarks("FORM_PIPETTE_NA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                            else: #formation initiale
+                                if (participan_dict['resultat'] == "Acquises" 
+                                            or participan_dict['resultat'] == "Acquise"):
+                                            doc.Bookmarks("FORM_INIT_A").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                
+                                elif (participan_dict['resultat'] == """À améliorer"""):                                            
+                                            doc.Bookmarks("FORM_INIT_AA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                                            
+                                elif participan_dict['resultat'] == "Non acquise":
+                                    doc.Bookmarks("FORM_INIT_NA").Range.Text = ele[3].strftime("%d-%m-%Y")
+                            
+                            
+                        else:
+                            pass
                 
                 afficheur_sat_tev_aft = session.query( self.CMR.NOM,
                                     self.CMR.PRENOM, 
@@ -371,8 +456,6 @@ class Bdd_Cmr():
 
                 
                 
-                
-                
                 doc.Bookmarks("NOM").Range.Text = nom_prenom[0].upper()
                 doc.Bookmarks("PRENOM").Range.Text = nom_prenom[1].capitalize()
                 doc.Bookmarks("DATE").Range.Text = pendulum.now().format('DD/MM/YYYY',formatter='alternative')
@@ -425,7 +508,7 @@ class Bdd_Cmr():
                     
                 sauvegarde_docx = chemin_sauvegarde /f"{nom_prenom[0].upper()}_{nom_prenom[1].capitalize()}.docx"
 #                shutil.copy2(chemin_fichier,chemin_sauvegarde )
-                print(sauvegarde_docx)
+#                print(sauvegarde_docx)
                 doc.SaveAs(sauvegarde_docx)
                 doc.Close()
         
@@ -731,7 +814,7 @@ class Insertion_Domaine():
         for ele in [accelerometrie, humidite, masse, pression, temps_frequence, temperature]:
         
             new_domaine = self.DOMAINE(DOMAINE = ele["domaine"] , 
-                                OPTIONS=cast(accelerometrie["famille"], ARRAY(JSON)) 
+                                OPTIONS=cast(ele["famille"], ARRAY(JSON)) 
                                 )
             
             

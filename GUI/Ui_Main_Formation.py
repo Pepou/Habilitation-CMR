@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Developpement Informatique\Python\Habilitation CMR\GUI\Main_Formation.ui'
+# Form implementation generated from reading ui file 'Y:\Logiciels\Logiciels_techniques_labo\0_ A valider tester\Habilitation CMR\GUI\Main_Formation.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -121,7 +121,7 @@ class Ui_Main_Formation(object):
         QtCore.QMetaObject.connectSlotsByName(Main_Formation)
 
     def retranslateUi(self, Main_Formation):
-        Main_Formation.setWindowTitle(_translate("Main_Formation", "Racapitulatif formations", None))
+        Main_Formation.setWindowTitle(_translate("Main_Formation", "Recapitulatif formations", None))
         self.label_7.setText(_translate("Main_Formation", "Recapitulatif des Formations", None))
         self.tableWidget_recap.setSortingEnabled(True)
         item = self.tableWidget_recap.horizontalHeaderItem(0)

@@ -9,7 +9,7 @@ from PyQt4.QtGui import QMainWindow, QTextEdit, QTableWidgetItem, QTableWidget, 
 
 from .Ui_Main_Formation import Ui_Main_Formation
 from GUI.Formation import Formation
-from Package.AccesBdd import Bdd_Cmr
+from Package.AccesBdd import Bdd_Cmr#, Insertion_Domaine
 from Package.Documents_de_Formation import Attestation_formation
 import json
 import pendulum
@@ -34,6 +34,9 @@ class Main_Formation(QMainWindow, Ui_Main_Formation):
         self.engine = engine
         self.db_formation = Bdd_Cmr(self.engine)
         self.remplir_tableau_recap()
+        
+#        Insertion_Domaine(self.engine).insertion_table()
+        
     
     def remplir_tableau_recap(self):
 #        formations = 
@@ -170,7 +173,7 @@ class Main_Formation(QMainWindow, Ui_Main_Formation):
         Slot documentation goes here.
         """
         row = self.tableWidget_recap.currentRow()
-        print(row)
+#        print(row)
 #        if row:
         try:
             nom_formation  = self.tableWidget_recap.item(row, 0).text()
@@ -182,10 +185,17 @@ class Main_Formation(QMainWindow, Ui_Main_Formation):
         date  = pendulum.parse(self.tableWidget_recap.item(row, 1).text(), exact= True).format('%A %d %B %Y', locale='fr')
 
 
-        try:
-            domaine  = self.tableWidget_recap.cellWidget(row, 3).toPlainText()
-        except:
-            domaine = None
+#        try:
+        domaine = []
+        for i in range(self.tableWidget_recap.cellWidget(0, 3).count()):
+            try:
+                domaine.append(self.tableWidget_recap.cellWidget(row, 3).item(i).text())
+            except:
+#                print(self.tableWidget_recap.cellWidget(row, 3).item(i))
+                pass
+#        domaine  = self.tableWidget_recap.cellWidget(row, 3).toPlainText()
+#        except:
+#            domaine = None
             
         try:
             type_formation  = self.tableWidget_recap.item(row, 2).text()
@@ -233,5 +243,4 @@ class Main_Formation(QMainWindow, Ui_Main_Formation):
         """
         Slot documentation goes here.
         """
-        # TODO: not implemented yet
-        raise NotImplementedError
+        self.db_formation.recup_prestation()

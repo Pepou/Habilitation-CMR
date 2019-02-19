@@ -6,8 +6,10 @@ Module implementing MainWindow.
 
 from PyQt4.QtCore import pyqtSlot
 from PyQt4.QtGui import QMainWindow
-from PyQt4.QtGui import QMessageBox
-from GUI.afficheurs import Afficheurs
+from GUI.CMR import Gestion_CMR
+
+#from PyQt4.QtGui import QMessageBox
+#from GUI.afficheurs import Afficheurs
 from GUI.Ui_connexion2 import Ui_MainWindow
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import * 
@@ -53,15 +55,19 @@ class Connexion(QMainWindow, Ui_MainWindow):
         login = self.login.text()
         password = self.password.text()
         
-        self.engine = create_engine("postgresql+psycopg2://{}:{}@{}:{}/{}".format(login, password, self.adressebdd, self.portbdd, self.namebdd)) 
+        engine = create_engine("postgresql+psycopg2://{}:{}@{}:{}/{}".format(login, password, self.adressebdd, self.portbdd, self.namebdd)) 
         self.meta = MetaData() 
 
         self.close()
-        self.afficheurs = Afficheurs(self.engine, self.meta)
-        self.afficheurs.showMaximized()
-        self.close()            
         
-        return login, password
+        self.myapp = Gestion_CMR(engine)
+        self.myapp.show()  
+        
+#        self.afficheurs = Afficheurs(self.engine, self.meta)
+#        self.afficheurs.showMaximized()
+#        self.close()            
+        
+#        return login, password
 #        except:
 #            QMessageBox.information(self, 
 #                ("Erreur connexion "), 

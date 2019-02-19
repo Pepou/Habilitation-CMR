@@ -5,10 +5,10 @@ Module implementing Gestion_CMR.
 """
 
 from PyQt4.QtCore import pyqtSlot, Qt
-from PyQt4.QtGui import QMainWindow, QTableWidgetItem, QAction
+from PyQt4.QtGui import QMainWindow, QTableWidgetItem
 
 from .Ui_CMR import Ui_Gestion_CMR
-from Package.AccesBdd import Bdd_Cmr
+from Package.AccesBdd import Bdd_Cmr, Insertion_Domaine
 
 from GUI.Main_Formation import Main_Formation
 
@@ -32,7 +32,7 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
 #        self.cmr_bdd.recup_cmr()
         self.remplir_tableau_cmr(self.cmr_bdd.recup_cmr())
         
-        
+
 
 #            print(cmr.NOM)
     def remplir_tableau_cmr(self, gen_list_cmr):
@@ -106,16 +106,16 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
             
             new_cmr = {"site":self.comboBox_site.currentText(), 
                         "service": self.comboBox_service.currentText(), 
-                        "responsable":self.lineEdit_responsable.text(), 
-                        "nom":self.lineEdit_nom.text(), 
-                        "prenom":self.lineEdit_prenom.text(), 
+                        "responsable":self.lineEdit_responsable.text().upper(), 
+                        "nom":self.lineEdit_nom.text().upper(), 
+                        "prenom":self.lineEdit_prenom.text().upper(), 
                         "courriel":self.lineEdit_courriel.text(), 
                         "fonction":self.lineEdit_fonction.text()}
-        
+            
             self.cmr_bdd.insertion_new_cmr(new_cmr)
         
             self.nettoyage_onglet_creation_cmr()
-            self.tableWidget.setCurrentIndex(0)
+            self.tabWidget.setCurrentIndex(0)
             self.remplir_tableau_cmr(self.cmr_bdd.recup_cmr())
         
         except ValueError:
@@ -193,7 +193,7 @@ class Gestion_CMR(QMainWindow, Ui_Gestion_CMR):
             activite = False #dans la base on parle d'archivage
         else:
             activite = True
-        cmr_modif= {"id":next(self.id), "nom": self.lineEdit_nom_modif.text(), 
+        cmr_modif= {"id":self.id, "nom": self.lineEdit_nom_modif.text(), 
                     "prenom":self.lineEdit_prenom_modif.text(), "responsable": self.lineEdit_responsable_2.text(), 
                     "courriel": self.lineEdit_courriel_2.text(), "fonction":self.lineEdit_fonction_2.text(), 
                     "site":self.comboBox_site_modif.currentText(), "service":self.comboBox_service_modif.currentText(), 

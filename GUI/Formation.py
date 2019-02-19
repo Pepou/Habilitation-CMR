@@ -4,7 +4,7 @@
 Module implementing Formation.
 """
 
-from PyQt4.QtCore import pyqtSlot, pyqtSignal, Qt, QThread, QRunnable, QObject, QThreadPool, QMutex
+from PyQt4.QtCore import pyqtSlot, pyqtSignal, Qt, QThread, QRunnable, QObject#, QThreadPool, QMutex
 from PyQt4.QtGui import (QMainWindow, QTableWidgetItem, QTextEdit, 
                             QCheckBox, QStandardItemModel, QBrush, QColor, 
                             QStandardItem, QComboBox)
@@ -118,7 +118,7 @@ class Formation(QMainWindow, Ui_Formation):
             self.tableWidget.setItem(0, 1, item_prenom)
             
             self.tableWidget.setCellWidget(0, 2, QComboBox())
-            self.tableWidget.cellWidget (0, 2).addItems(["*", "Acquises", "À améliorer", "Non acquises"])
+            self.tableWidget.cellWidget (0, 2).addItems(["*", "Acquise", "À améliorer", "Non acquise"])
             
             self.tableWidget.setCellWidget(0, 3, QComboBox())          
             self.tableWidget.cellWidget (0, 3).addItems([str(x) for x in range(21)])
